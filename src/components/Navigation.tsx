@@ -125,6 +125,9 @@ const Navigation = () => {
           <Link to="/chat" className="text-sm font-medium hover:text-white transition-colors px-1">
             Chat
           </Link>
+          <Link to="/temp-admin" className="text-sm font-medium hover:text-white transition-colors px-1">
+            Admin
+          </Link>
           {!isLoading && (
             user ? (
               <DropdownMenu>
@@ -275,6 +278,13 @@ const Navigation = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Chat
+            </Link>
+            <Link
+              to="/temp-admin"
+              className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Admin
             </Link>
             <div className="pt-4 space-y-2">
               {!isLoading && (
