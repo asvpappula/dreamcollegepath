@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <!-- Graduation Cap Base -->
+  <path d="M256 64L32 192L256 320L480 192L256 64Z" fill="#3B82F6" />
+  
+  <!-- Graduation Cap Top -->
+  <path d="M128 256V352C128 387.3 185.5 416 256 416C326.5 416 384 387.3 384 352V256" fill="#1D4ED8" />
+  
+  <!-- Tassel -->
+  <path d="M384 256V352C384 352 384 352 384 352C384 352 330.5 384 256 384C181.5 384 128 352 128 352C128 352 128 352 128 352V256" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" />
+  
+  <!-- Book -->
+  <rect x="208" y="160" width="96" height="128" rx="8" fill="#FFFFFF" />
+  <path d="M208 168C208 163.6 211.6 160 216 160H296C300.4 160 304 163.6 304 168V176H208V168Z" fill="#3B82F6" />
+  
+  <!-- Book Pages -->
+  <line x1="224" y1="192" x2="288" y2="192" stroke="#E5E7EB" stroke-width="4" />
+  <line x1="224" y1="208" x2="288" y2="208" stroke="#E5E7EB" stroke-width="4" />
+  <line x1="224" y1="224" x2="288" y2="224" stroke="#E5E7EB" stroke-width="4" />
+  <line x1="224" y1="240" x2="288" y2="240" stroke="#E5E7EB" stroke-width="4" />
+  <line x1="224" y1="256" x2="288" y2="256" stroke="#E5E7EB" stroke-width="4" />
+  
+  <!-- Circular Border -->
+  <circle cx="256" cy="256" r="240" stroke="#3B82F6" stroke-width="16" stroke-opacity="0.3" fill="none" />
+</svg>

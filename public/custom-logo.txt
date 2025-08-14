@@ -1,0 +1,6 @@
+Please replace this text file with your image file.
+
+To use your own logo:
+1. Delete this text file
+2. Add your image file here with the name "custom-logo.png" (or .jpg, .svg)
+3. The website is already configured to use this file as the logo

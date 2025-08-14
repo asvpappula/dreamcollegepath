@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Your Logo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #1a4b8c;
+    }
+    .instructions {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .note {
+      background-color: #fff3cd;
+      padding: 10px;
+      border-left: 4px solid #ffc107;
+      margin-bottom: 20px;
+    }
+    code {
+      background-color: #f0f0f0;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Logo Upload Instructions</h1>
+  
+  <div class="instructions">
+    <h2>How to Add Your Custom Logo</h2>
+    <ol>
+      <li>Prepare your logo image file (PNG, JPG, or SVG format recommended)</li>
+      <li>Rename your image file to <code>custom-logo.png</code> (or .jpg/.svg depending on your file type)</li>
+      <li>Copy your renamed logo file to the <code>/public</code> directory of this project</li>
+      <li>Replace the existing placeholder file</li>
+      <li>Restart the development server if needed</li>
+    </ol>
+  </div>
+
+  <div class="note">
+    <strong>Note:</strong> The website is already configured to use a file named <code>custom-logo.png</code> in the public directory. If your image has a different format (like JPG or SVG), you'll need to update the references in <code>Navigation.tsx</code> and <code>index.html</code> to match your file extension.
+  </div>
+
+  <h2>Recommended Logo Specifications</h2>
+  <ul>
+    <li>Format: PNG with transparency or SVG (vector) for best quality</li>
+    <li>Size: At least 200x200 pixels</li>
+    <li>Aspect ratio: Square or slightly rectangular</li>
+    <li>File size: Keep under 200KB for optimal loading speed</li>
+  </ul>
+
+  <p>After adding your logo, it will appear in the navigation bar and as the favicon in browser tabs.</p>
+</body>
+</html>
