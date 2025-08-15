@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import About from "./pages/About";
 import ServicesCounselingCollege from "./pages/ServicesCounselingCollege";
@@ -117,34 +118,36 @@ function RequireAdmin({ children }: { children: JSX.Element }) {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/counseling-college" element={<ServicesCounselingCollege />} />
-          <Route path="/test-prep" element={<ServicesTestPrep />} />
-          <Route path="/build-project" element={<BuildProject />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/reset" element={<Reset />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/tutoring/math" element={<TutoringMath />} />
-          <Route path="/tutoring/science" element={<TutoringScience />} />
-          <Route path="/tutoring/english" element={<TutoringEnglish />} />
-          <Route path="/tutoring/history" element={<TutoringHistory />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/counseling-college" element={<ServicesCounselingCollege />} />
+            <Route path="/test-prep" element={<ServicesTestPrep />} />
+            <Route path="/build-project" element={<BuildProject />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/reset" element={<Reset />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/tutoring/math" element={<TutoringMath />} />
+            <Route path="/tutoring/science" element={<TutoringScience />} />
+            <Route path="/tutoring/english" element={<TutoringEnglish />} />
+            <Route path="/tutoring/history" element={<TutoringHistory />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
