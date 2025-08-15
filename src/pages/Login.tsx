@@ -101,7 +101,7 @@ const Login = () => {
       const upsertRes = await authApi.upsert(idToken);
       if (upsertRes.ok) {
         setSuccess("Successfully signed in with Google!");
-        setTimeout(() => navigate(from), 600);
+        setTimeout(() => navigate("/profile"), 600);
       } else {
         throw new Error("Upsert failed");
       }
@@ -139,7 +139,7 @@ const Login = () => {
       const upsertRes = await authApi.upsert(idToken);
       if (upsertRes.ok) {
         setSuccess("Successfully signed in!");
-        setTimeout(() => navigate(from), 600);
+        setTimeout(() => navigate("/profile"), 600);
       } else {
         throw new Error("Upsert failed");
       }

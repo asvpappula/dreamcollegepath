@@ -15,6 +15,7 @@ import BuildProject from "./pages/BuildProject";
 // Chat component removed - no longer using chat functionality
 import Login from "./pages/Login";
 import Reset from "./pages/Reset";
+import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import TutoringMath from "./pages/TutoringMath";
@@ -135,6 +136,7 @@ const App = () => (
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/login" element={<Login />} />
             <Route path="/reset" element={<Reset />} />
+            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/subscription" element={<Subscription />} />
             <Route path="/tutoring/math" element={<TutoringMath />} />

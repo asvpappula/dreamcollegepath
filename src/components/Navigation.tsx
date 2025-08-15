@@ -238,6 +238,12 @@ const Navigation = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56 mt-2 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 py-2" align="end" forceMount>
                     <DropdownMenuItem asChild>
+                      <Link to="/profile" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2">
+                        <User className="mr-3 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/admin" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2">
                         <Settings className="mr-3 h-4 w-4" />
                         Dashboard
@@ -398,6 +404,13 @@ const Navigation = () => {
               {!isLoading && (
                 user ? (
                   <>
+                    <Link
+                      to="/profile"
+                      className="block py-3 px-4 text-lg font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-200 rounded-lg"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
                     <Link
                       to="/admin"
                       className="block py-3 px-4 text-lg font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-200 rounded-lg"
