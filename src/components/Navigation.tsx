@@ -216,13 +216,7 @@ const Navigation = () => {
           
           {/* Right: Auth Section */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link 
-              to="/chat" 
-              className="relative text-lg font-medium text-blue-600 hover:text-blue-800 transition-all duration-300 py-2 px-1 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
-            >
-              Chat
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-            </Link>
+            {/* Chat link removed - no longer using chat functionality */}
             
             {user?.isAdmin && (
               <Link 
@@ -389,13 +383,7 @@ const Navigation = () => {
             
             <div className="border-t border-gray-200 my-4"></div>
             
-            <Link
-              to="/chat"
-              className="block py-3 px-4 text-lg font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-200 rounded-lg"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Chat
-            </Link>
+            {/* Chat link removed - no longer using chat functionality */}
             
             {user?.isAdmin && (
               <Link

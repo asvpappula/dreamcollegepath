@@ -4,19 +4,11 @@ import cookieParser from 'cookie-parser';
 import admin from 'firebase-admin';
 import { TableClient, AzureNamedKeyCredential } from '@azure/data-tables';
 import rateLimit from 'express-rate-limit';
-import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
-import OpenAI from 'openai';
-import { Pinecone } from '@pinecone-database/pinecone';
-import { v4 as uuidv4 } from 'uuid';
+// File processing imports removed - no longer processing documents
+// Removed OpenAI, Pinecone, and document processing imports - using only Firebase and Azure
 import 'dotenv/config';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// File path utilities removed - no longer processing files
 
 // Initialize Firebase Admin
 let firebaseInitialized = false;
@@ -40,45 +32,12 @@ try {
   console.warn('Firebase initialization failed - running in development mode:', error.message);
 }
 
-// Initialize OpenAI
-let openai = null;
-let openaiInitialized = false;
-try {
-  if (process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-    openaiInitialized = true;
-    console.log('OpenAI initialized successfully');
-  } else {
-    console.warn('OpenAI API key not provided - chat functionality will be limited');
-  }
-} catch (error) {
-  console.warn('OpenAI initialization failed:', error.message);
-}
+// OpenAI removed - using only Firebase and Azure
 
-// Initialize Pinecone
-let pinecone = null;
-let index = null;
-let pineconeInitialized = false;
-try {
-  if (process.env.PINECONE_API_KEY) {
-    pinecone = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY,
-    });
-    index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'tutoring-bot');
-    pineconeInitialized = true;
-    console.log('Pinecone initialized successfully');
-  } else {
-    console.warn('Pinecone API key not provided - vector search will be limited');
-  }
-} catch (error) {
-  console.warn('Pinecone initialization failed:', error.message);
-}
+// Pinecone removed - using only Firebase and Azure
 
-// Initialize Azure Table Storage
+// Initialize Azure Table Storage (Users only)
 let tableClient = null;
-let documentsTableClient = null;
 let azureInitialized = false;
 try {
   const tableAccount = process.env.AZURE_STORAGE_ACCOUNT;
@@ -86,11 +45,9 @@ try {
   
   if (tableAccount && tableKey) {
     const usersTableName = process.env.AZURE_TABLE_NAME || 'Users';
-    const documentsTableName = 'Documents';
     const tableUrl = `https://${tableAccount}.table.core.windows.net`;
     const credential = new AzureNamedKeyCredential(tableAccount, tableKey);
     tableClient = new TableClient(tableUrl, usersTableName, credential);
-    documentsTableClient = new TableClient(tableUrl, documentsTableName, credential);
     azureInitialized = true;
     console.log('Azure Table Storage initialized successfully');
   } else {
@@ -129,145 +86,13 @@ try {
 const app = express();
 const PORT = process.env.PORT || 8787;
 
-// Configure multer for file uploads
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// File upload configuration removed - no longer processing documents
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Text extraction and chunking functions removed - no longer processing documents
 
-const upload = multer({ 
-  storage: storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['.txt', '.pdf', '.docx', '.vtt', '.srt'];
-    const fileExtension = path.extname(file.originalname).toLowerCase();
-    if (allowedTypes.includes(fileExtension)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type. Only .txt, .pdf, .docx, .vtt, .srt files are allowed.'));
-    }
-  }
-});
+// createEmbedding function removed - no longer using OpenAI embeddings
 
-// Document processing functions
-const extractTextFromFile = async (filePath, originalName) => {
-  const extension = path.extname(originalName).toLowerCase();
-  
-  try {
-    switch (extension) {
-      case '.txt':
-      case '.vtt':
-      case '.srt':
-        return fs.readFileSync(filePath, 'utf8');
-      
-      case '.pdf':
-        const pdfBuffer = fs.readFileSync(filePath);
-        const pdfData = await pdfParse(pdfBuffer);
-        return pdfData.text;
-      
-      case '.docx':
-        const docxResult = await mammoth.extractRawText({ path: filePath });
-        return docxResult.value;
-      
-      default:
-        throw new Error('Unsupported file type');
-    }
-  } catch (error) {
-    console.error('Error extracting text:', error);
-    throw error;
-  }
-};
-
-const chunkText = (text, chunkSize = 1000, overlap = 200) => {
-  const chunks = [];
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-  
-  let currentChunk = '';
-  let currentSize = 0;
-  
-  for (const sentence of sentences) {
-    const sentenceLength = sentence.trim().length;
-    
-    if (currentSize + sentenceLength > chunkSize && currentChunk.length > 0) {
-      chunks.push(currentChunk.trim());
-      
-      // Create overlap
-      const words = currentChunk.split(' ');
-      const overlapWords = words.slice(-Math.floor(overlap / 5)); // Approximate word count for overlap
-      currentChunk = overlapWords.join(' ') + ' ' + sentence.trim();
-      currentSize = currentChunk.length;
-    } else {
-      currentChunk += (currentChunk ? ' ' : '') + sentence.trim();
-      currentSize = currentChunk.length;
-    }
-  }
-  
-  if (currentChunk.trim().length > 0) {
-    chunks.push(currentChunk.trim());
-  }
-  
-  return chunks.filter(chunk => chunk.length > 50); // Filter out very small chunks
-};
-
-const createEmbedding = async (text) => {
-  try {
-    const response = await openai.embeddings.create({
-      model: 'text-embedding-3-small',
-      input: text,
-    });
-    return response.data[0].embedding;
-  } catch (error) {
-    console.error('Error creating embedding:', error);
-    throw error;
-  }
-};
-
-const storeDocumentChunks = async (documentId, chunks, metadata) => {
-  try {
-    const vectors = [];
-    
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const embedding = await createEmbedding(chunk);
-      
-      vectors.push({
-        id: `${documentId}-chunk-${i}`,
-        values: embedding,
-        metadata: {
-          documentId,
-          chunkIndex: i,
-          text: chunk,
-          filename: metadata.filename,
-          uploadDate: metadata.uploadDate
-        }
-      });
-    }
-    
-    // Upsert vectors to Pinecone in batches
-    const batchSize = 100;
-    for (let i = 0; i < vectors.length; i += batchSize) {
-      const batch = vectors.slice(i, i + batchSize);
-      await index.upsert(batch);
-    }
-    
-    return vectors.length;
-  } catch (error) {
-    console.error('Error storing document chunks:', error);
-    throw error;
-  }
-};
+// storeDocumentChunks function removed - no longer using Pinecone vector storage
 
 // Middleware
 app.use(cors({
@@ -383,260 +208,17 @@ const verifyAdmin = (req, res, next) => {
 
 // Admin Routes for Document Management
 
-// POST /api/admin/upload-transcript - Upload and process transcript
-app.post('/api/admin/upload-transcript', verifySession, verifyAdmin, upload.single('transcript'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
+// Document upload endpoints removed - no longer processing documents for AI chat
 
-    const documentId = uuidv4();
-    const uploadDate = new Date().toISOString();
-    
-    // Store document metadata in Azure Table
-    const documentEntity = {
-      partitionKey: 'Documents',
-      rowKey: documentId,
-      filename: req.file.originalname,
-      filePath: req.file.path,
-      uploadDate,
-      uploadedBy: req.user.uid,
-      status: 'processing',
-      chunks: 0
-    };
-    
-    await documentsTableClient.upsertEntity(documentEntity, 'Replace');
-    
-    // Process document asynchronously
-    processDocumentAsync(documentId, req.file.path, req.file.originalname, uploadDate);
-    
-    res.json({ 
-      ok: true, 
-      documentId,
-      message: 'Document uploaded successfully and is being processed' 
-    });
-    
-  } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to upload document' });
-  }
-});
+// Document status endpoints removed - no longer processing documents
 
-// GET /api/admin/document-status/:id - Get document processing status
-app.get('/api/admin/document-status/:id', verifySession, verifyAdmin, async (req, res) => {
-  try {
-    const documentId = req.params.id;
-    
-    const entity = await documentsTableClient.getEntity('Documents', documentId);
-    
-    res.json({
-      status: entity.status,
-      chunks: entity.chunks || 0,
-      filename: entity.filename,
-      uploadDate: entity.uploadDate
-    });
-    
-  } catch (error) {
-    console.error('Error getting document status:', error);
-    res.status(404).json({ error: 'Document not found' });
-  }
-});
+// Document listing endpoints removed - no longer managing documents
 
-// GET /api/admin/documents - Get all documents
-app.get('/api/admin/documents', verifySession, verifyAdmin, async (req, res) => {
-  try {
-    const entities = documentsTableClient.listEntities({
-      queryOptions: { filter: "PartitionKey eq 'Documents'" }
-    });
-    
-    const documents = [];
-    for await (const entity of entities) {
-      documents.push({
-        id: entity.rowKey,
-        filename: entity.filename,
-        uploadDate: entity.uploadDate,
-        status: entity.status,
-        chunks: entity.chunks || 0
-      });
-    }
-    
-    // Sort by upload date (newest first)
-    documents.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
-    
-    res.json({ documents });
-    
-  } catch (error) {
-    console.error('Error getting documents:', error);
-    res.status(500).json({ error: 'Failed to get documents' });
-  }
-});
+// Document deletion endpoints removed - no longer managing documents
 
-// DELETE /api/admin/documents/:id - Delete document
-app.delete('/api/admin/documents/:id', verifySession, verifyAdmin, async (req, res) => {
-  try {
-    const documentId = req.params.id;
-    
-    // Get document info first
-    const entity = await documentsTableClient.getEntity('Documents', documentId);
-    
-    // Delete file from disk
-    if (entity.filePath && fs.existsSync(entity.filePath)) {
-      fs.unlinkSync(entity.filePath);
-    }
-    
-    // Delete vectors from Pinecone
-    try {
-      const vectorIds = [];
-      for (let i = 0; i < (entity.chunks || 0); i++) {
-        vectorIds.push(`${documentId}-chunk-${i}`);
-      }
-      if (vectorIds.length > 0) {
-        await index.deleteMany(vectorIds);
-      }
-    } catch (pineconeError) {
-      console.error('Error deleting vectors from Pinecone:', pineconeError);
-    }
-    
-    // Delete from Azure Table
-    await documentsTableClient.deleteEntity('Documents', documentId);
-    
-    res.json({ ok: true, message: 'Document deleted successfully' });
-    
-  } catch (error) {
-    console.error('Error deleting document:', error);
-    res.status(500).json({ error: 'Failed to delete document' });
-  }
-});
+// Chat endpoints removed - no longer using OpenAI and Pinecone for RAG
 
-// Chat Routes
-
-// POST /api/chat - Process chat message with RAG
-app.post('/api/chat', async (req, res) => {
-  try {
-    const { message, conversationHistory = [] } = req.body;
-    
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({ error: 'Message is required' });
-    }
-    
-    // Create embedding for the user's question
-    const questionEmbedding = await createEmbedding(message);
-    
-    // Search for relevant chunks in Pinecone
-    const searchResults = await index.query({
-      vector: questionEmbedding,
-      topK: 5,
-      includeMetadata: true
-    });
-    
-    // Extract relevant context from search results
-    const relevantChunks = searchResults.matches
-      .filter(match => match.score > 0.7) // Only include high-confidence matches
-      .map(match => match.metadata.text)
-      .join('\n\n');
-    
-    if (!relevantChunks) {
-      return res.json({
-        response: "I don't have information about that topic in the uploaded transcripts. Please ask questions related to the course materials that have been uploaded.",
-        sources: []
-      });
-    }
-    
-    // Create context-aware prompt
-    const systemPrompt = `You are a helpful tutoring assistant that answers questions based ONLY on the provided class transcript content. 
-
-IMPORTANT RULES:
-1. Only use information from the provided transcript content below
-2. If the question cannot be answered from the transcript content, say so clearly
-3. Be concise but thorough in your explanations
-4. Reference specific parts of the transcript when relevant
-5. Do not make up or hallucinate any information
-
-TRANSCRIPT CONTENT:
-${relevantChunks}`;
-    
-    // Build conversation context
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      ...conversationHistory.slice(-6), // Keep last 6 messages for context
-      { role: 'user', content: message }
-    ];
-    
-    // Generate response using OpenAI
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages,
-      max_tokens: 500,
-      temperature: 0.1, // Low temperature for more factual responses
-    });
-    
-    const response = completion.choices[0].message.content;
-    
-    // Extract source information
-    const sources = searchResults.matches
-      .filter(match => match.score > 0.7)
-      .map(match => ({
-        filename: match.metadata.filename,
-        chunkIndex: match.metadata.chunkIndex,
-        score: match.score
-      }));
-    
-    res.json({
-      response,
-      sources
-    });
-    
-  } catch (error) {
-    console.error('Chat error:', error);
-    res.status(500).json({ error: 'Failed to process chat message' });
-  }
-});
-
-// Async function to process documents
-const processDocumentAsync = async (documentId, filePath, originalName, uploadDate) => {
-  try {
-    // Extract text from file
-    const text = await extractTextFromFile(filePath, originalName);
-    
-    // Split into chunks
-    const chunks = chunkText(text);
-    
-    // Store chunks with embeddings
-    const chunkCount = await storeDocumentChunks(documentId, chunks, {
-      filename: originalName,
-      uploadDate
-    });
-    
-    // Update document status
-    const updateEntity = {
-      partitionKey: 'Documents',
-      rowKey: documentId,
-      status: 'ready',
-      chunks: chunkCount
-    };
-    
-    await documentsTableClient.updateEntity(updateEntity, 'Merge');
-    
-    console.log(`✅ Document ${documentId} processed successfully with ${chunkCount} chunks`);
-    
-  } catch (error) {
-    console.error(`❌ Error processing document ${documentId}:`, error);
-    
-    // Update document status to error
-    try {
-      const updateEntity = {
-        partitionKey: 'Documents',
-        rowKey: documentId,
-        status: 'error',
-        errorMessage: error.message
-      };
-      
-      await documentsTableClient.updateEntity(updateEntity, 'Merge');
-    } catch (updateError) {
-      console.error('Error updating document status:', updateError);
-    }
-  }
-};
+// Document processing functions removed - no longer using OpenAI and Pinecone
 
 // Auth Routes
 

@@ -68,7 +68,7 @@ PORT=8787
 ### Frontend (React + Vite)
 - **Login Page**: `/login` - Combined sign-in/sign-up with tabs
 - **Reset Page**: `/reset` - Password reset flow
-- **Protected Routes**: Routes requiring authentication (e.g., `/chat`)
+- **Protected Routes**: Routes requiring authentication (e.g., `/admin`)
 - **Firebase Client SDK**: Handles authentication UI flows
 
 ### Backend (Express Server)
@@ -137,7 +137,7 @@ Fields:
 3. **Try sign-up**: Create account with email/password
 4. **Check email**: Verify account via Firebase email
 5. **Try Google**: Sign in with Google OAuth
-6. **Test protection**: Visit `/chat` (should redirect to login if not authenticated)
+6. **Test protection**: Visit `/admin` (should redirect to login if not authenticated)
 7. **Test logout**: Use browser dev tools to clear cookies, verify redirect
 
 ## 🔍 Troubleshooting

@@ -12,7 +12,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Subscription from "./pages/Subscription";
 import BuildProject from "./pages/BuildProject";
-import Chat from "./pages/Chat";
+// Chat component removed - no longer using chat functionality
 import Login from "./pages/Login";
 import Reset from "./pages/Reset";
 import Admin from "./pages/Admin";
@@ -130,7 +130,7 @@ const App = () => (
             <Route path="/counseling-college" element={<ServicesCounselingCollege />} />
             <Route path="/test-prep" element={<ServicesTestPrep />} />
             <Route path="/build-project" element={<BuildProject />} />
-            <Route path="/chat" element={<Chat />} />
+            {/* Chat route removed - no longer using chat functionality */}
             <Route path="/admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/login" element={<Login />} />
