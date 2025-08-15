@@ -9,6 +9,8 @@
     "dev:all": "concurrently -k \"npm:dev\" \"npm:dev:server\"",
     "build": "vite build",
     "build:dev": "vite build --mode development",
+    "vercel-build": "vite build",
+    "deploy-check": "node deploy-check.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -62,7 +64,7 @@
     "multer": "^2.0.2",
     "next-themes": "^0.3.0",
     "openai": "^5.12.2",
-    "pdf-parse": "^1.1.1",
+    "pdf-parse": "^1.1.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",

@@ -11,6 +11,7 @@ import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react
 import { signInWithGoogle, signInWithEmail, signUpWithEmail, verifyEmail, auth } from "@/lib/firebase";
 import { authApi } from "@/lib/api";
 import { useNavigate, useLocation } from "react-router-dom";
+import Navigation from "@/components/Navigation";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -196,17 +197,12 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <div className="w-full max-w-md">
+    <>
+      <Navigation />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 pt-20">
+        <div className="w-full max-w-md mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-block mb-6">
-            <img 
-              src="/dream-college-logo.svg" 
-              alt="Dream College Path" 
-              className="h-12 mx-auto"
-            />
-          </Link>
+        <div className="text-center mb-8 flex flex-col items-center">
           <h1 className="text-2xl font-display font-bold text-primary mb-2">
             Welcome to Dream College Path
           </h1>
@@ -443,21 +439,31 @@ const Login = () => {
                   </Button>
                 </form>
               </TabsContent>
+
+
             </Tabs>
           </CardContent>
         </Card>
 
         {/* Footer */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-muted-foreground">
+        <div className="text-center mt-6 space-y-3 flex flex-col items-center">
+          <div className="text-sm text-muted-foreground">
             Need help?{" "}
             <Link to="/contact" className="text-primary hover:text-primary-light underline">
               Contact Support
             </Link>
-          </p>
+          </div>
+          <Button
+            variant="outline"
+            className="text-sm text-muted-foreground border-gray-300 hover:bg-gray-50"
+            onClick={() => navigate('/admin-login')}
+          >
+            Admin Login
+          </Button>
+        </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

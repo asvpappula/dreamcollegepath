@@ -60,79 +60,79 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-24 bg-gradient-to-b from-muted/30 to-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-secondary/10 text-secondary text-sm font-medium">
-            <Star className="w-4 h-4 mr-2" />
+    <section id="testimonials" className="bg-gradient-to-b from-muted/30 to-background" style={{paddingTop: 'clamp(48px, 8vw, 80px)', paddingBottom: 'clamp(48px, 8vw, 80px)'}}>
+      <div className="container">
+        <div className="text-center mx-auto" style={{marginBottom: '56px'}}>
+          <div className="inline-flex items-center rounded-full bg-secondary/10 text-secondary font-medium" style={{padding: '12px 20px', fontSize: '14px', marginBottom: '24px'}}>
+            <Star className="mr-2" style={{width: '18px', height: '18px'}} />
             Success Stories
           </div>
           
-          <h2 className="text-4xl lg:text-5xl font-display font-bold">
-            Dreams Achieved, <span className="text-gradient">Futures Unlocked</span>
+          <h2 className="font-display font-bold text-gradient" style={{fontSize: 'clamp(28px, 3vw, 40px)', lineHeight: '1.2', marginBottom: '24px'}}>
+            Dreams Achieved, Futures Unlocked
           </h2>
           
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-muted-foreground mx-auto" style={{fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '1.6', maxWidth: '65ch'}}>
             Don't just take our word for it. See how we've helped students like you 
             gain admission to their dream schools and secure the future they deserve.
           </p>
         </div>
 
         {/* Statistics Banner */}
-        <div className="grid md:grid-cols-4 gap-8 mb-16">
-          <div className="text-center space-y-2">
-            <div className="text-4xl font-bold text-primary">1,000+</div>
-            <div className="text-sm text-muted-foreground uppercase tracking-wide">Students Helped</div>
+        <div className="grid grid-cols-2 md:grid-cols-4" style={{gap: 'clamp(24px, 4vw, 40px)', marginBottom: '56px'}}>
+          <div className="text-center" style={{gap: '8px'}}>
+            <div className="font-bold text-primary" style={{fontSize: 'clamp(28px, 3vw, 40px)'}}>1,000+</div>
+            <div className="text-muted-foreground uppercase tracking-wide" style={{fontSize: '14px'}}>Students Helped</div>
           </div>
-          <div className="text-center space-y-2">
-            <div className="text-4xl font-bold text-secondary">98%</div>
-            <div className="text-sm text-muted-foreground uppercase tracking-wide">Acceptance Rate</div>
+          <div className="text-center" style={{gap: '8px'}}>
+            <div className="font-bold text-secondary" style={{fontSize: 'clamp(28px, 3vw, 40px)'}}>98%</div>
+            <div className="text-muted-foreground uppercase tracking-wide" style={{fontSize: '14px'}}>Acceptance Rate</div>
           </div>
-          <div className="text-center space-y-2">
-            <div className="text-4xl font-bold text-accent">$2.4M</div>
-            <div className="text-sm text-muted-foreground uppercase tracking-wide">In Scholarships</div>
+          <div className="text-center" style={{gap: '8px'}}>
+            <div className="font-bold text-accent" style={{fontSize: 'clamp(28px, 3vw, 40px)'}}>$2.4M</div>
+            <div className="text-muted-foreground uppercase tracking-wide" style={{fontSize: '14px'}}>In Scholarships</div>
           </div>
-          <div className="text-center space-y-2">
-            <div className="text-4xl font-bold text-primary">4.9/5</div>
-            <div className="text-sm text-muted-foreground uppercase tracking-wide">Average Rating</div>
+          <div className="text-center" style={{gap: '8px'}}>
+            <div className="font-bold text-primary" style={{fontSize: 'clamp(28px, 3vw, 40px)'}}>4.9/5</div>
+            <div className="text-muted-foreground uppercase tracking-wide" style={{fontSize: '14px'}}>Average Rating</div>
           </div>
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3" style={{gap: 'clamp(24px, 4vw, 40px)'}}>
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="card-elevated h-full">
-              <CardContent className="p-8 h-full flex flex-col">
-                <div className="flex-1 space-y-6">
+            <Card key={index} className="card-elevated h-full" style={{borderRadius: '18px'}}>
+              <CardContent className="h-full flex flex-col" style={{padding: '26px'}}>
+                <div className="flex-1" style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                   {/* Header */}
                   <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="text-3xl">{testimonial.image}</div>
+                    <div className="flex items-center" style={{gap: '16px'}}>
+                      <div style={{fontSize: '24px'}}>{testimonial.image}</div>
                       <div>
-                        <h3 className="font-semibold">{testimonial.name}</h3>
-                        <p className="text-sm text-muted-foreground">{testimonial.school}</p>
-                        <p className="text-xs text-primary font-medium">{testimonial.program}</p>
+                        <h3 className="font-semibold" style={{fontSize: 'clamp(22px, 2.2vw, 28px)'}}>{testimonial.name}</h3>
+                        <p className="text-muted-foreground" style={{fontSize: '14px'}}>{testimonial.school}</p>
+                        <p className="text-primary font-medium" style={{fontSize: '14px'}}>{testimonial.program}</p>
                       </div>
                     </div>
-                    <Quote className="w-6 h-6 text-primary/20" />
+                    <Quote className="text-primary/20" style={{width: '24px', height: '24px'}} />
                   </div>
 
                   {/* Rating */}
-                  <div className="flex space-x-1">
+                  <div className="flex" style={{gap: '4px'}}>
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-secondary text-secondary" />
+                      <Star key={i} className="fill-secondary text-secondary" style={{width: '18px', height: '18px'}} />
                     ))}
                   </div>
 
                   {/* Quote */}
-                  <blockquote className="text-sm leading-relaxed text-muted-foreground flex-1">
+                  <blockquote className="text-muted-foreground flex-1" style={{fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '1.6'}}>
                     "{testimonial.quote}"
                   </blockquote>
                 </div>
 
                 {/* Outcome */}
-                <div className="pt-6 border-t">
-                  <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 text-primary text-xs font-medium">
+                <div className="border-t" style={{paddingTop: '16px'}}>
+                  <div className="inline-flex items-center rounded-full bg-gradient-to-r from-primary/10 to-accent/10 text-primary font-medium" style={{padding: '8px 16px', fontSize: '14px'}}>
                     🎉 {testimonial.outcome}
                   </div>
                 </div>
@@ -142,12 +142,14 @@ const TestimonialsSection = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center mt-16 space-y-6">
-          <div className="inline-flex items-center space-x-4 p-6 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 border">
-            <div className="text-4xl">🎓</div>
+        <div className="text-center" style={{marginTop: '56px'}}>
+          <div className="inline-flex items-center bg-gradient-to-r from-primary/5 to-accent/5 border" style={{gap: '24px', padding: '26px', borderRadius: '18px'}}>
+            <div style={{fontSize: '32px'}}>🎓</div>
             <div className="text-left">
-              <h3 className="font-display font-semibold text-lg">Ready to Join Our Success Stories?</h3>
-              <p className="text-muted-foreground">Start your journey to your dream college today.</p>
+              <h3 className="font-display font-semibold" style={{fontSize: 'clamp(22px, 2.2vw, 28px)'}}>Ready to Join Our Success Stories?</h3>
+              <p className="text-muted-foreground" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>
+                Start your journey to your dream college today.
+              </p>
             </div>
           </div>
         </div>

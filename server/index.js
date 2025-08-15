@@ -19,57 +19,109 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Initialize Firebase Admin
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-};
+let firebaseInitialized = false;
+try {
+  const serviceAccount = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  };
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+  if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    firebaseInitialized = true;
+    console.log('Firebase Admin initialized successfully');
+  } else {
+    console.warn('Firebase credentials not provided - running in development mode');
+  }
+} catch (error) {
+  console.warn('Firebase initialization failed - running in development mode:', error.message);
+}
 
 // Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openai = null;
+let openaiInitialized = false;
+try {
+  if (process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    openaiInitialized = true;
+    console.log('OpenAI initialized successfully');
+  } else {
+    console.warn('OpenAI API key not provided - chat functionality will be limited');
+  }
+} catch (error) {
+  console.warn('OpenAI initialization failed:', error.message);
+}
 
 // Initialize Pinecone
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY,
-});
-const index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'tutoring-bot');
+let pinecone = null;
+let index = null;
+let pineconeInitialized = false;
+try {
+  if (process.env.PINECONE_API_KEY) {
+    pinecone = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY,
+    });
+    index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'tutoring-bot');
+    pineconeInitialized = true;
+    console.log('Pinecone initialized successfully');
+  } else {
+    console.warn('Pinecone API key not provided - vector search will be limited');
+  }
+} catch (error) {
+  console.warn('Pinecone initialization failed:', error.message);
+}
 
 // Initialize Azure Table Storage
-const tableAccount = process.env.AZURE_STORAGE_ACCOUNT;
-const usersTableName = process.env.AZURE_TABLE_NAME || 'Users';
-const documentsTableName = 'Documents';
-const tableKey = process.env.AZURE_STORAGE_KEY;
-const tableUrl = `https://${tableAccount}.table.core.windows.net`;
-const credential = new AzureNamedKeyCredential(tableAccount, tableKey);
-const tableClient = new TableClient(tableUrl, usersTableName, credential);
-const documentsTableClient = new TableClient(tableUrl, documentsTableName, credential);
+let tableClient = null;
+let documentsTableClient = null;
+let azureInitialized = false;
+try {
+  const tableAccount = process.env.AZURE_STORAGE_ACCOUNT;
+  const tableKey = process.env.AZURE_STORAGE_KEY;
+  
+  if (tableAccount && tableKey) {
+    const usersTableName = process.env.AZURE_TABLE_NAME || 'Users';
+    const documentsTableName = 'Documents';
+    const tableUrl = `https://${tableAccount}.table.core.windows.net`;
+    const credential = new AzureNamedKeyCredential(tableAccount, tableKey);
+    tableClient = new TableClient(tableUrl, usersTableName, credential);
+    documentsTableClient = new TableClient(tableUrl, documentsTableName, credential);
+    azureInitialized = true;
+    console.log('Azure Table Storage initialized successfully');
+  } else {
+    console.warn('Azure Storage credentials not provided - user data storage will be limited');
+  }
+} catch (error) {
+  console.warn('Azure Table Storage initialization failed:', error.message);
+}
 
 (async () => {
-  try {
-    await tableClient.createTable();
-    console.log(`✅ Azure Table '${usersTableName}' is ready`);
-  } catch (e) {
-    if (e.statusCode === 409) {
-      console.log(`ℹ️ Azure Table '${usersTableName}' already exists`);
-    } else {
-      console.error('Failed to ensure Users Azure Table exists:', e);
+  if (azureInitialized && tableClient && documentsTableClient) {
+    try {
+      await tableClient.createTable();
+      console.log(`✅ Azure Table 'Users' is ready`);
+    } catch (e) {
+      if (e.statusCode === 409) {
+        console.log(`ℹ️ Azure Table 'Users' already exists`);
+      } else {
+        console.error('Failed to ensure Users Azure Table exists:', e);
+      }
     }
-  }
-  
-  try {
-    await documentsTableClient.createTable();
-    console.log(`✅ Azure Table '${documentsTableName}' is ready`);
-  } catch (e) {
-    if (e.statusCode === 409) {
-      console.log(`ℹ️ Azure Table '${documentsTableName}' already exists`);
-    } else {
-      console.error('Failed to ensure Documents Azure Table exists:', e);
+    
+    try {
+      await documentsTableClient.createTable();
+      console.log(`✅ Azure Table 'Documents' is ready`);
+    } catch (e) {
+      if (e.statusCode === 409) {
+        console.log(`ℹ️ Azure Table 'Documents' already exists`);
+      } else {
+        console.error('Failed to ensure Documents Azure Table exists:', e);
+      }
     }
   }
 })();
@@ -219,7 +271,9 @@ const storeDocumentChunks = async (documentId, chunks, metadata) => {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:8082', 'http://localhost:8084'], // Allow dev ports
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL || 'https://your-app.vercel.app'] 
+    : ['http://localhost:8080', 'http://localhost:8082', 'http://localhost:8084'], // Allow dev ports
   credentials: true,
 }));
 app.use(express.json());

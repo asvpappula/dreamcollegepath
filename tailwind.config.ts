@@ -19,8 +19,10 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'display': ['Playfair Display', 'serif'],
-				'body': ['Inter', 'sans-serif'],
+				'display': ['Times New Roman', 'serif'],
+				'body': ['Times New Roman', 'serif'],
+				'sans': ['Times New Roman', 'serif'],
+				'serif': ['Times New Roman', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

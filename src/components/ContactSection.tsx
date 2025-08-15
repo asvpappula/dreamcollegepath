@@ -54,85 +54,85 @@ const ContactSection = () => {
   };
 
   return (
-    <section id="contact" className="py-24 bg-gradient-to-b from-background to-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-4 mb-16">
-          <div className="inline-flex items-center px-4 py-2 rounded-full bg-accent/10 text-accent text-sm font-medium">
-            <MessageSquare className="w-4 h-4 mr-2" />
+    <section id="contact" className="bg-gradient-to-b from-background to-muted/30" style={{paddingTop: 'clamp(48px, 8vw, 80px)', paddingBottom: 'clamp(48px, 8vw, 80px)'}}>
+      <div className="container">
+        <div className="text-center mx-auto" style={{marginBottom: '56px'}}>
+          <div className="inline-flex items-center rounded-full bg-accent/10 text-accent font-medium" style={{padding: '12px 20px', fontSize: '14px', marginBottom: '24px'}}>
+            <MessageSquare className="mr-2" style={{width: '18px', height: '18px'}} />
             Get In Touch
           </div>
           
-          <h2 className="text-4xl lg:text-5xl font-display font-bold">
+          <h2 className="font-display font-bold" style={{fontSize: 'clamp(28px, 3vw, 40px)', lineHeight: '1.2', marginBottom: '24px'}}>
             Ready to Start Your <span className="text-gradient">College Journey?</span>
           </h2>
           
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-muted-foreground mx-auto" style={{fontSize: 'clamp(16px, 1.6vw, 18px)', lineHeight: '1.6', maxWidth: '65ch'}}>
             Schedule your free consultation today and discover how we can help you 
             achieve your college dreams. No pressure, just expert guidance.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid lg:grid-cols-3" style={{gap: 'clamp(24px, 4vw, 40px)'}}>
           {/* Contact Info */}
-          <div className="space-y-8">
+          <div style={{display: 'flex', flexDirection: 'column', gap: '32px'}}>
             <div>
-              <h3 className="font-display font-semibold text-xl mb-6">Get in Touch</h3>
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-primary" />
+              <h3 className="font-display font-semibold" style={{fontSize: 'clamp(22px, 2.2vw, 28px)', marginBottom: '24px'}}>Get in Touch</h3>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '24px'}}>
+                <div className="flex items-start" style={{gap: '16px'}}>
+                  <div className="rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 flex items-center justify-center" style={{width: '48px', height: '48px'}}>
+                    <Mail className="text-primary" style={{width: '20px', height: '20px'}} />
                   </div>
                   <div>
-                    <h4 className="font-medium">Email Us</h4>
-                    <p className="text-muted-foreground text-sm">hello@dreamcollegepath.com</p>
-                    <p className="text-muted-foreground text-sm">Response within 24 hours</p>
+                    <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Email Us</h4>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>hello@dreamcollegepath.com</p>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>Response within 24 hours</p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-secondary/10 to-secondary-light/10 flex items-center justify-center">
-                    <Phone className="w-5 h-5 text-secondary" />
+                <div className="flex items-start" style={{gap: '16px'}}>
+                  <div className="rounded-lg bg-gradient-to-r from-secondary/10 to-secondary-light/10 flex items-center justify-center" style={{width: '48px', height: '48px'}}>
+                    <Phone className="text-secondary" style={{width: '20px', height: '20px'}} />
                   </div>
                   <div>
-                    <h4 className="font-medium">Call Us</h4>
-                    <p className="text-muted-foreground text-sm">(555) 123-4567</p>
-                    <p className="text-muted-foreground text-sm">Mon-Fri 9AM-6PM EST</p>
+                    <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Call Us</h4>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>(555) 123-4567</p>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>Mon-Fri 9AM-6PM EST</p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-accent/10 to-accent-light/10 flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-accent" />
+                <div className="flex items-start" style={{gap: '16px'}}>
+                  <div className="rounded-lg bg-gradient-to-r from-accent/10 to-accent-light/10 flex items-center justify-center" style={{width: '48px', height: '48px'}}>
+                    <MapPin className="text-accent" style={{width: '20px', height: '20px'}} />
                   </div>
                   <div>
-                    <h4 className="font-medium">Meet With Us</h4>
-                    <p className="text-muted-foreground text-sm">Virtual & In-Person Sessions</p>
-                    <p className="text-muted-foreground text-sm">Nationwide availability</p>
+                    <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Meet With Us</h4>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>Virtual & In-Person Sessions</p>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>Nationwide availability</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Quick Actions</h4>
-              <div className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
-                  <Calendar className="w-4 h-4 mr-2" />
+            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+              <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Quick Actions</h4>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                <Button className="w-full justify-start focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" variant="outline" style={{minHeight: '44px'}}>
+                  <Calendar className="mr-2" style={{width: '18px', height: '18px'}} />
                   Schedule Free Consultation
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
-                  <Send className="w-4 h-4 mr-2" />
+                <Button className="w-full justify-start focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" variant="outline" style={{minHeight: '44px'}}>
+                  <Send className="mr-2" style={{width: '18px', height: '18px'}} />
                   Download Free Guide
                 </Button>
               </div>
             </div>
 
             {/* Office Hours */}
-            <Card className="card-elevated">
-              <CardContent className="p-6">
-                <h4 className="font-medium mb-4">Office Hours</h4>
-                <div className="space-y-2 text-sm">
+            <Card className="card-elevated" style={{borderRadius: '18px'}}>
+              <CardContent style={{padding: '26px'}}>
+                <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)', marginBottom: '16px'}}>Office Hours</h4>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '14px'}}>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Monday - Friday</span>
                     <span>9:00 AM - 6:00 PM</span>
@@ -146,7 +146,7 @@ const ContactSection = () => {
                     <span>Closed</span>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-4">
+                <p className="text-muted-foreground" style={{fontSize: '14px', marginTop: '16px'}}>
                   All times Eastern Standard Time
                 </p>
               </CardContent>

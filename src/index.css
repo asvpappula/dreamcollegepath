@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,6 +5,60 @@
 /* DreamCollegePath Design System - Educational, trustworthy, modern */
 
 @layer base {
+  * {
+    font-family: 'Times New Roman', serif !important;
+  }
+  
+  /* Design System Typography */
+  h1 {
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+  
+  h2 {
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.2;
+  }
+  
+  h3 {
+    font-size: clamp(22px, 2.2vw, 28px);
+    line-height: 1.3;
+  }
+  
+  p, .body-text {
+    font-size: clamp(16px, 1.6vw, 18px);
+    line-height: 1.65;
+    max-width: 70ch;
+  }
+  
+  .text-small, .meta-text {
+    font-size: 14px;
+  }
+  
+  /* Container System */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  
+  @media (min-width: 768px) {
+    .container {
+      padding-left: 32px;
+      padding-right: 32px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 48px;
+      padding-right: 48px;
+    }
+  }
+  
   :root {
     /* Core Brand Colors - Education & Trust Theme */
     --background: 0 0% 100%;
@@ -238,5 +290,90 @@
 
   .glow:hover::after {
     opacity: 0.3;
+  }
+
+  /* Modern Navigation Animations */
+  .animate-in {
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .slide-in-from-top-2 {
+    animation: slideInFromTop 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Navigation Link Hover Effects */
+  .nav-link-underline {
+    position: relative;
+  }
+
+  .nav-link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.3s ease-in-out;
+  }
+
+  .nav-link-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Dropdown Panel Styling */
+  .dropdown-panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Mobile Menu Slide Animation */
+  .mobile-menu-enter {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  .mobile-menu-enter-active {
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+
+  .mobile-menu-exit {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .mobile-menu-exit-active {
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.2s ease-in, opacity 0.2s ease-in;
   }
 }
