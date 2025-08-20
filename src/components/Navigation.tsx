@@ -18,11 +18,11 @@ import { onAuthStateChanged } from "firebase/auth";
 
 const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProgramsOpen, setIsProgramsOpen] = useState(false);
+  const [isTutoringOpen, setIsTutoringOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const programsRef = useRef<HTMLDivElement>(null);
+  const tutoringRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
@@ -43,15 +43,15 @@ const Navigation = () => {
 
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
-      if (programsRef.current && !programsRef.current.contains(event.target as Node)) {
-        setIsProgramsOpen(false);
+      if (tutoringRef.current && !tutoringRef.current.contains(event.target as Node)) {
+        setIsTutoringOpen(false);
       }
     };
 
     // Close dropdown on Escape key
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setIsProgramsOpen(false);
+        setIsTutoringOpen(false);
       }
     };
 
@@ -76,25 +76,25 @@ const Navigation = () => {
     }
   };
 
-  const handleProgramsMouseEnter = () => {
+  const handleTutoringMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setIsProgramsOpen(true);
+    setIsTutoringOpen(true);
   };
 
-  const handleProgramsMouseLeave = () => {
+  const handleTutoringMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
-      setIsProgramsOpen(false);
+      setIsTutoringOpen(false);
     }, 150);
   };
 
-  const handleProgramsClick = () => {
-    setIsProgramsOpen(!isProgramsOpen);
+  const handleTutoringClick = () => {
+    setIsTutoringOpen(!isTutoringOpen);
   };
 
-  const handleProgramsKeyDown = (event: React.KeyboardEvent) => {
+  const handleTutoringKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      setIsProgramsOpen(!isProgramsOpen);
+      setIsTutoringOpen(!isTutoringOpen);
     }
   };
 
@@ -121,81 +121,81 @@ const Navigation = () => {
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
             </Link>
             
+            <Link 
+              to="/services/counseling/college" 
+              className="relative text-lg font-medium text-blue-600 hover:text-blue-800 transition-all duration-300 py-2 px-1 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+            >
+              College Counseling
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            
+            <Link 
+              to="/services/test-prep" 
+              className="relative text-lg font-medium text-blue-600 hover:text-blue-800 transition-all duration-300 py-2 px-1 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+            >
+              Test Preparation
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
+            
             <div 
-              ref={programsRef}
+              ref={tutoringRef}
               className="relative"
-              onMouseEnter={handleProgramsMouseEnter}
-              onMouseLeave={handleProgramsMouseLeave}
+              onMouseEnter={handleTutoringMouseEnter}
+              onMouseLeave={handleTutoringMouseLeave}
             >
               <button
-                onClick={handleProgramsClick}
-                onKeyDown={handleProgramsKeyDown}
+                onClick={handleTutoringClick}
+                onKeyDown={handleTutoringKeyDown}
                 className="relative flex items-center text-lg font-medium text-blue-600 hover:text-blue-800 transition-all duration-300 py-2 px-1 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
-                aria-expanded={isProgramsOpen}
+                aria-expanded={isTutoringOpen}
                 aria-haspopup="true"
               >
-                Programs 
-                <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isProgramsOpen ? 'rotate-180' : ''}`} />
+                Tutoring Programs 
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${isTutoringOpen ? 'rotate-180' : ''}`} />
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
               </button>
               
-              {isProgramsOpen && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              {isTutoringOpen && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <Link 
-                    to="/services/counseling/college" 
+                    to="/tutoring/math" 
                     className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
-                    onClick={() => setIsProgramsOpen(false)}
+                    onClick={() => setIsTutoringOpen(false)}
                   >
-                    College Counseling
+                    Math Tutoring
                   </Link>
                   <Link 
-                    to="/services/test-prep" 
+                    to="/tutoring/science" 
                     className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
-                    onClick={() => setIsProgramsOpen(false)}
+                    onClick={() => setIsTutoringOpen(false)}
                   >
-                    Test Preparation
+                    Science Tutoring
                   </Link>
-                  <div className="px-2 py-1">
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2 py-1">Tutoring Programs</div>
-                    <Link 
-                      to="/tutoring/math" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg"
-                      onClick={() => setIsProgramsOpen(false)}
-                    >
-                      Math Tutoring
-                    </Link>
-                    <Link 
-                      to="/tutoring/science" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg"
-                      onClick={() => setIsProgramsOpen(false)}
-                    >
-                      Science Tutoring
-                    </Link>
-                    <Link 
-                      to="/tutoring/english" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg"
-                      onClick={() => setIsProgramsOpen(false)}
-                    >
-                      English Tutoring
-                    </Link>
-                    <Link 
-                      to="/tutoring/history" 
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg"
-                      onClick={() => setIsProgramsOpen(false)}
-                    >
-                      History Tutoring
-                    </Link>
-                  </div>
                   <Link 
-                    to="/build-project" 
+                    to="/tutoring/english" 
                     className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
-                    onClick={() => setIsProgramsOpen(false)}
+                    onClick={() => setIsTutoringOpen(false)}
                   >
-                    Build Project
+                    English Tutoring
+                  </Link>
+                  <Link 
+                    to="/tutoring/history" 
+                    className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
+                    onClick={() => setIsTutoringOpen(false)}
+                  >
+                    History Tutoring
                   </Link>
                 </div>
               )}
             </div>
+            
+            <Link 
+              to="/build-project" 
+              className="relative text-lg font-medium text-blue-600 hover:text-blue-800 transition-all duration-300 py-2 px-1 group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md"
+            >
+              Build a Project
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
+            </Link>
             
             <Link 
               to="/about" 
@@ -309,67 +309,63 @@ const Navigation = () => {
               Home
             </Link>
             
+            <Link
+              to="/services/counseling/college"
+              className="block py-3 px-4 text-lg font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-200 rounded-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              College Counseling
+            </Link>
+            
+            <Link
+              to="/services/test-prep"
+              className="block py-3 px-4 text-lg font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-200 rounded-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Test Preparation
+            </Link>
+            
             <div className="space-y-1">
-              <div className="py-3 px-4 text-lg font-medium text-blue-600">Programs</div>
+              <div className="py-3 px-4 text-lg font-medium text-blue-600">Tutoring Programs</div>
               <div className="pl-4 space-y-1">
                 <Link
-                  to="/services/counseling/college"
+                  to="/tutoring/math"
                   className="block py-2 px-4 text-base text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  College Counseling
+                  Math Tutoring
                 </Link>
                 <Link
-                  to="/services/test-prep"
+                  to="/tutoring/science"
                   className="block py-2 px-4 text-base text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Test Preparation
+                  Science Tutoring
                 </Link>
-                
-                <div className="space-y-1">
-                  <div className="py-2 px-4 text-sm font-semibold text-gray-500 uppercase tracking-wide">Tutoring Programs</div>
-                  <div className="pl-4 space-y-1">
-                    <Link
-                      to="/tutoring/math"
-                      className="block py-2 px-4 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Math Tutoring
-                    </Link>
-                    <Link
-                      to="/tutoring/science"
-                      className="block py-2 px-4 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Science Tutoring
-                    </Link>
-                    <Link
-                      to="/tutoring/english"
-                      className="block py-2 px-4 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      English Tutoring
-                    </Link>
-                    <Link
-                      to="/tutoring/history"
-                      className="block py-2 px-4 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      History Tutoring
-                    </Link>
-                  </div>
-                </div>
-                
                 <Link
-                  to="/build-project"
+                  to="/tutoring/english"
                   className="block py-2 px-4 text-base text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Build Project
+                  English Tutoring
+                </Link>
+                <Link
+                  to="/tutoring/history"
+                  className="block py-2 px-4 text-base text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 rounded-lg"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  History Tutoring
                 </Link>
               </div>
             </div>
+            
+            <Link
+              to="/build-project"
+              className="block py-3 px-4 text-lg font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-all duration-200 rounded-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Build a Project
+            </Link>
             
             <Link
               to="/about"
