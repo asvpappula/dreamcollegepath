@@ -48,8 +48,10 @@ const Subscription = () => {
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm font-medium">
                 Subscription Plans
               </div>
-              <h1 className="text-4xl lg:text-6xl font-display font-bold text-white leading-tight">
-                Choose Your <span className="text-secondary">Path</span>
+              <h1 className="text-4xl lg:text-6xl font-display font-bold text-white leading-tight text-center">
+                Choose Your
+                <br />
+                <span className="text-secondary">Path</span>
               </h1>
               <p className="text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
                 Comprehensive and personalized packages to guide you and your family through every aspect of your college admissions process.
