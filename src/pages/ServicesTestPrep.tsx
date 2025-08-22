@@ -167,20 +167,22 @@ const ServicesTestPrep = () => {
       {/* Hero Section */}
       <section className="hero-background py-24 lg:py-32 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center space-y-8">
+          <div className="flex flex-col items-center justify-center text-center space-y-8 min-h-[400px]">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm font-medium">
               <Target className="w-4 h-4 mr-2 text-secondary" />
               Comprehensive Test Preparation
             </div>
             
-            <h1 className="text-4xl lg:text-6xl font-display font-bold text-white leading-tight">
-              SAT and ACT <span className="text-secondary">Test Preparation</span>
-            </h1>
-            
-            <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              Comprehensive test preparation programs designed to maximize your scores 
-              and strengthen your college applications.
-            </p>
+            <div className="space-y-4">
+              <h1 className="text-4xl lg:text-6xl font-display font-bold text-white leading-tight">
+                SAT and ACT <span className="text-secondary">Test Preparation</span>
+              </h1>
+              
+              <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+                Comprehensive test preparation programs designed to maximize your scores 
+                and strengthen your college applications.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -424,4 +426,4 @@ const ServicesTestPrep = () => {
   );
 };
 
-export default ServicesTestPrep; 
+export default ServicesTestPrep;

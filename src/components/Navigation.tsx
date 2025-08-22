@@ -147,7 +147,7 @@ const Navigation = () => {
                     Test Preparation
                   </Link>
                   <div 
-                    className="relative"
+                    className="relative group"
                     onMouseEnter={handleTutoringMouseEnter}
                     onMouseLeave={handleTutoringMouseLeave}
                   >
@@ -157,34 +157,34 @@ const Navigation = () => {
                     </div>
                     {isTutoringOpen && (
                       <div 
-                        className="ml-4 mt-1 space-y-1"
+                        className="absolute left-full top-0 ml-2 w-48 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 py-2 animate-in fade-in slide-in-from-left-2 duration-200 z-50"
                         onMouseEnter={handleTutoringMouseEnter}
                         onMouseLeave={handleTutoringMouseLeave}
                       >
                         <Link 
                           to="/tutoring/math" 
-                          className="block px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
                           onClick={() => { setIsServicesOpen(false); setIsTutoringOpen(false); }}
                         >
                           Math Tutoring
                         </Link>
                         <Link 
                           to="/tutoring/science" 
-                          className="block px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
                           onClick={() => { setIsServicesOpen(false); setIsTutoringOpen(false); }}
                         >
                           Science Tutoring
                         </Link>
                         <Link 
                           to="/tutoring/english" 
-                          className="block px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
                           onClick={() => { setIsServicesOpen(false); setIsTutoringOpen(false); }}
                         >
                           English Tutoring
                         </Link>
                         <Link 
                           to="/tutoring/history" 
-                          className="block px-4 py-2 text-xs text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-150 rounded-lg mx-2"
                           onClick={() => { setIsServicesOpen(false); setIsTutoringOpen(false); }}
                         >
                           History Tutoring
