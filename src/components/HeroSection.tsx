@@ -28,7 +28,12 @@ const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start" style={{marginTop: '32px'}}>
-              <Button variant="hero" size="lg" className="px-8 py-4 text-lg font-semibold">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="px-8 py-4 text-lg font-semibold"
+                onClick={() => window.open('https://calendly.com/dreamcollegepath/30min?month=2025-08', '_blank')}
+              >
                 Start Your Journey
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>

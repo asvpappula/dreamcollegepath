@@ -61,3 +61,12 @@ You can deploy this project using various platforms like Vercel, Netlify, or any
 ## Can I connect a custom domain to my project?
 
 Yes, you can! Most hosting platforms allow you to connect custom domains to your projects. Check your hosting provider's documentation for specific instructions on how to set up a custom domain.
+
+## User Role Assignment
+
+This application uses email domain-based role assignment:
+
+- **Admin Role**: Users with email addresses ending in `@dreamcollegepath.com` are automatically assigned the "admin" role
+- **Student Role**: All other users are assigned the "student" role
+
+Role assignment happens automatically during the sign-in process (both email/password and Google sign-in). Admin users have access to the Admin Dashboard at `/admin`, while student users can only access their profile and other general features.

@@ -84,7 +84,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Email Us</h4>
-                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>hello@dreamcollegepath.com</p>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>info@dreamcollegepath.com</p>
                     <p className="text-muted-foreground" style={{fontSize: '14px'}}>Response within 24 hours</p>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Call Us</h4>
-                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>(555) 123-4567</p>
+                    <p className="text-muted-foreground" style={{fontSize: '14px'}}>+1 925-307-7711</p>
                     <p className="text-muted-foreground" style={{fontSize: '14px'}}>Mon-Fri 9AM-6PM EST</p>
                   </div>
                 </div>
@@ -110,21 +110,6 @@ const ContactSection = () => {
                     <p className="text-muted-foreground" style={{fontSize: '14px'}}>Nationwide availability</p>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
-              <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Quick Actions</h4>
-              <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                <Button className="w-full justify-start focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" variant="outline" style={{minHeight: '44px'}}>
-                  <Calendar className="mr-2" style={{width: '18px', height: '18px'}} />
-                  Schedule Free Consultation
-                </Button>
-                <Button className="w-full justify-start focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" variant="outline" style={{minHeight: '44px'}}>
-                  <Send className="mr-2" style={{width: '18px', height: '18px'}} />
-                  Download Free Guide
-                </Button>
               </div>
             </div>
 
@@ -151,6 +136,22 @@ const ContactSection = () => {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Quick Actions */}
+            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+              <h4 className="font-medium" style={{fontSize: 'clamp(16px, 1.6vw, 18px)'}}>Quick Actions</h4>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                <Button 
+                  className="w-full justify-start focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2" 
+                  variant="outline" 
+                  style={{minHeight: '44px'}}
+                  onClick={() => window.open('https://calendly.com/dreamcollegepath/30min?month=2025-08', '_blank')}
+                >
+                  <Calendar className="mr-2" style={{width: '18px', height: '18px'}} />
+                  Schedule Free Consultation
+                </Button>
+              </div>
+            </div>
           </div>
 
           {/* Contact Form */}
@@ -212,7 +213,7 @@ const ContactSection = () => {
                         type="tel"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder="(555) 123-4567"
+                        placeholder="(925) 123-4567"
                       />
                     </div>
                   </div>

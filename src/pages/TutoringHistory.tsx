@@ -177,7 +177,12 @@ const TutoringHistory = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="hero" size="lg" className="px-8 py-4 text-lg bg-white text-primary hover:bg-white/90">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="px-8 py-4 text-lg bg-white text-primary hover:bg-white/90"
+                onClick={() => window.open('https://calendly.com/dreamcollegepath/30min?month=2025-08', '_blank')}
+              >
                 Schedule Free Consultation
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>

@@ -1,560 +1,512 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { 
   User, 
   Mail, 
   Phone, 
-  MapPin, 
+  GraduationCap, 
   Calendar, 
   Edit, 
   Save, 
   X, 
   Camera,
-  Shield,
-  Bell,
-  CreditCard,
-  Download,
-  Trash2,
+  Upload,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Target,
+  BookOpen
 } from "lucide-react";
-import { auth, logOut } from "@/lib/firebase";
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { useAuth } from "@/contexts/AuthContext";
+import { updateUserData, uploadAvatar, UserData } from "@/lib/firebase";
+import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { currentUser, userData, loading, refreshUserData } = useAuth();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   
   // Profile form state
-  const [profileData, setProfileData] = useState({
-    displayName: "",
-    email: "",
+  const [profileData, setProfileData] = useState<Partial<UserData>>({
+    firstName: "",
+    lastName: "",
+    preferredName: "",
     phone: "",
-    location: "",
-    bio: "",
-    dateOfBirth: "",
-    website: "",
-    linkedin: "",
-    twitter: ""
+    school: "",
+    gradYear: new Date().getFullYear(),
+    interests: [],
+    goals: "",
   });
 
-  // Settings state
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    smsNotifications: false,
-    marketingEmails: false,
-    profileVisibility: "public",
-    twoFactorAuth: false
-  });
-
+  // Initialize form data when userData changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setProfileData({
-          displayName: currentUser.displayName || "",
-          email: currentUser.email || "",
-          phone: currentUser.phoneNumber || "",
-          location: "",
-          bio: "",
-          dateOfBirth: "",
-          website: "",
-          linkedin: "",
-          twitter: ""
-        });
-      } else {
-        navigate("/login");
-      }
-      setLoading(false);
-    });
+    if (userData) {
+      setProfileData({
+        firstName: userData.firstName || "",
+        lastName: userData.lastName || "",
+        preferredName: userData.preferredName || "",
+        phone: userData.phone || "",
+        school: userData.school || "",
+        gradYear: userData.gradYear || new Date().getFullYear(),
+        interests: userData.interests || [],
+        goals: userData.goals || "",
+      });
+    }
+  }, [userData]);
 
-    return () => unsubscribe();
-  }, [navigate]);
-
-  const handleInputChange = (field: string, value: string) => {
-    setProfileData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleInputChange = (field: keyof UserData, value: any) => {
+    setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSettingChange = (setting: string, value: boolean | string) => {
-    setSettings(prev => ({
-      ...prev,
-      [setting]: value
-    }));
+  const handleInterestsChange = (value: string) => {
+    const interests = value.split(',').map(interest => interest.trim()).filter(Boolean);
+    handleInputChange('interests', interests);
   };
 
-  const handleSaveProfile = async () => {
-    setIsSaving(true);
-    setError("");
-    setSuccess("");
+  const handleSave = async () => {
+    if (!currentUser) return;
     
+    setIsSaving(true);
     try {
-      // Here you would typically save to your backend
-      // For now, we'll just simulate a save
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSuccess("Profile updated successfully!");
+      await updateUserData(currentUser.uid, profileData);
+      await refreshUserData();
       setIsEditing(false);
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      setError("Failed to update profile. Please try again.");
-      setTimeout(() => setError(""), 3000);
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleLogout = async () => {
+  const handleCancel = () => {
+    if (userData) {
+      setProfileData({
+        firstName: userData.firstName || "",
+        lastName: userData.lastName || "",
+        preferredName: userData.preferredName || "",
+        phone: userData.phone || "",
+        school: userData.school || "",
+        gradYear: userData.gradYear || new Date().getFullYear(),
+        interests: userData.interests || [],
+        goals: userData.goals || "",
+      });
+    }
+    setIsEditing(false);
+  };
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      navigate('/login');
+    }
+  }, [currentUser, loading, navigate]);
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !currentUser) return;
+
+    // Validate file type and size
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select a JPG or PNG image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 2MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
     try {
-      await logOut();
-      navigate("/");
-    } catch (err) {
-      setError("Failed to log out. Please try again.");
+      const photoURL = await uploadAvatar(currentUser.uid, file);
+      await updateUserData(currentUser.uid, { photoURL });
+      await refreshUserData();
+      toast({
+        title: "Avatar updated",
+        description: "Your profile picture has been updated.",
+      });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload avatar. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
-      try {
-        // Here you would typically delete the account
-        setError("Account deletion is not implemented yet.");
-      } catch (err) {
-        setError("Failed to delete account. Please contact support.");
-      }
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map(n => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   if (loading) {
     return (
-      <>
+      <div className="min-h-screen bg-gray-50">
         <Navigation />
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading profile...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading profile...</p>
           </div>
         </div>
-      </>
+      </div>
+    );
+  }
+
+  if (!currentUser || !userData) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="flex items-center justify-center h-96">
+          <Alert className="max-w-md">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Unable to load profile data. Please try refreshing the page.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile</h1>
-            <p className="text-gray-600">Manage your account settings and preferences</p>
+      
+      <div className="max-w-4xl mx-auto py-8 px-4">
+        {/* Header Section */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-6">
+              <div className="relative">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={userData.photoURL || currentUser.photoURL || ''} alt={userData.name || currentUser.displayName || ''} />
+                  <AvatarFallback className="text-2xl">
+                    {(userData.name || currentUser.displayName || currentUser.email || 'U').charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                  ) : (
+                    <Camera className="h-4 w-4" />
+                  )}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+              </div>
+              
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {userData.preferredName || userData.firstName || userData.name || currentUser.displayName || 'User'}
+                </h1>
+                <p className="text-gray-600 flex items-center mt-1">
+                  <Mail className="h-4 w-4 mr-2" />
+                  {userData.email || currentUser.email}
+                </p>
+                {userData.school && (
+                  <p className="text-gray-600 flex items-center mt-1">
+                    <GraduationCap className="h-4 w-4 mr-2" />
+                    {userData.school} {userData.gradYear && `• Class of ${userData.gradYear}`}
+                  </p>
+                )}
+              </div>
+              
+              <Button
+                onClick={() => setIsEditing(!isEditing)}
+                variant={isEditing ? "outline" : "default"}
+                className="ml-auto"
+              >
+                {isEditing ? (
+                  <><X className="h-4 w-4 mr-2" /> Cancel</>
+                ) : (
+                  <><Edit className="h-4 w-4 mr-2" /> Edit Profile</>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Information */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Information</CardTitle>
+                <CardDescription>
+                  {isEditing ? "Update your personal information" : "Your personal information"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name</Label>
+                    {isEditing ? (
+                      <Input
+                        id="firstName"
+                        value={profileData.firstName || ''}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        placeholder="Enter your first name"
+                      />
+                    ) : (
+                      <p className="mt-1 text-sm text-gray-900">{userData.firstName || 'Not provided'}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="lastName">Last Name</Label>
+                    {isEditing ? (
+                      <Input
+                        id="lastName"
+                        value={profileData.lastName || ''}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        placeholder="Enter your last name"
+                      />
+                    ) : (
+                      <p className="mt-1 text-sm text-gray-900">{userData.lastName || 'Not provided'}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="preferredName">Preferred Name</Label>
+                  {isEditing ? (
+                    <Input
+                      id="preferredName"
+                      value={profileData.preferredName || ''}
+                      onChange={(e) => handleInputChange('preferredName', e.target.value)}
+                      placeholder="How would you like to be called?"
+                    />
+                  ) : (
+                    <p className="mt-1 text-sm text-gray-900">{userData.preferredName || 'Not provided'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="phone">Phone Number</Label>
+                  {isEditing ? (
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={profileData.phone || ''}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="Enter your phone number"
+                    />
+                  ) : (
+                    <p className="mt-1 text-sm text-gray-900 flex items-center">
+                      {userData.phone ? (
+                        <><Phone className="h-4 w-4 mr-2" />{userData.phone}</>
+                      ) : (
+                        'Not provided'
+                      )}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="school">School/University</Label>
+                    {isEditing ? (
+                      <Input
+                        id="school"
+                        value={profileData.school || ''}
+                        onChange={(e) => handleInputChange('school', e.target.value)}
+                        placeholder="Enter your school"
+                      />
+                    ) : (
+                      <p className="mt-1 text-sm text-gray-900">{userData.school || 'Not provided'}</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="gradYear">Graduation Year</Label>
+                    {isEditing ? (
+                      <Input
+                        id="gradYear"
+                        type="number"
+                        value={profileData.gradYear || ''}
+                        onChange={(e) => handleInputChange('gradYear', parseInt(e.target.value) || new Date().getFullYear())}
+                        placeholder="2024"
+                        min="2020"
+                        max="2030"
+                      />
+                    ) : (
+                      <p className="mt-1 text-sm text-gray-900">{userData.gradYear || 'Not provided'}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="interests">Interests</Label>
+                  {isEditing ? (
+                    <Input
+                      id="interests"
+                      value={profileData.interests?.join(', ') || ''}
+                      onChange={(e) => handleInterestsChange(e.target.value)}
+                      placeholder="Enter interests separated by commas"
+                    />
+                  ) : (
+                    <div className="mt-1">
+                      {userData.interests && userData.interests.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {userData.interests.map((interest, index) => (
+                            <Badge key={index} variant="secondary">{interest}</Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-900">Not provided</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="goals">Goals</Label>
+                  {isEditing ? (
+                    <Textarea
+                      id="goals"
+                      value={profileData.goals || ''}
+                      onChange={(e) => handleInputChange('goals', e.target.value)}
+                      placeholder="What are your academic and career goals?"
+                      rows={3}
+                    />
+                  ) : (
+                    <p className="mt-1 text-sm text-gray-900">{userData.goals || 'Not provided'}</p>
+                  )}
+                </div>
+
+                {isEditing && (
+                  <div className="flex space-x-4 pt-4">
+                    <Button onClick={handleSave} disabled={isSaving}>
+                      {isSaving ? (
+                        <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div> Saving...</>
+                      ) : (
+                        <><Save className="h-4 w-4 mr-2" /> Save Changes</>
+                      )}
+                    </Button>
+                    <Button variant="outline" onClick={handleCancel}>
+                      <X className="h-4 w-4 mr-2" /> Cancel
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Alerts */}
-          {error && (
-            <Alert className="mb-6 border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-800">{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          {success && (
-            <Alert className="mb-6 border-green-200 bg-green-50">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertDescription className="text-green-800">{success}</AlertDescription>
-            </Alert>
-          )}
-
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              <TabsTrigger value="billing">Billing</TabsTrigger>
-            </TabsList>
-
-            {/* Profile Tab */}
-            <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle>Profile Information</CardTitle>
-                      <CardDescription>
-                        Update your personal information and profile details
-                      </CardDescription>
+          {/* Progress Cards */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Target className="h-5 w-5 mr-2" />
+                  Application Progress
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Profile Completion</span>
+                      <span>75%</span>
                     </div>
-                    <div className="flex gap-2">
-                      {isEditing ? (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsEditing(false)}
-                            disabled={isSaving}
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            Cancel
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={handleSaveProfile}
-                            disabled={isSaving}
-                          >
-                            <Save className="h-4 w-4 mr-2" />
-                            {isSaving ? "Saving..." : "Save"}
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsEditing(true)}
-                        >
-                          <Edit className="h-4 w-4 mr-2" />
-                          Edit
-                        </Button>
-                      )}
+                    <Progress value={75} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>College Research</span>
+                      <span>40%</span>
+                    </div>
+                    <Progress value={40} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Application Essays</span>
+                      <span>20%</span>
+                    </div>
+                    <Progress value={20} className="h-2" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  Upcoming Tasks
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Complete SAT Registration</p>
+                      <p className="text-xs text-gray-500">Due in 3 days</p>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Avatar Section */}
-                  <div className="flex items-center space-x-4">
-                    <div className="relative">
-                      <Avatar className="h-20 w-20">
-                        <AvatarImage src={user?.photoURL || ""} />
-                        <AvatarFallback className="text-lg">
-                          {getInitials(profileData.displayName || profileData.email)}
-                        </AvatarFallback>
-                      </Avatar>
-                      {isEditing && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
-                        >
-                          <Camera className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold">{profileData.displayName || "No name set"}</h3>
-                      <p className="text-gray-600">{profileData.email}</p>
-                      <div className="flex items-center mt-2">
-                        <Badge variant={user?.emailVerified ? "default" : "secondary"}>
-                          {user?.emailVerified ? "Verified" : "Unverified"}
-                        </Badge>
-                      </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Research Safety Schools</p>
+                      <p className="text-xs text-gray-500">Due in 1 week</p>
                     </div>
                   </div>
-
-                  <Separator />
-
-                  {/* Profile Form */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="displayName">Full Name</Label>
-                      <Input
-                        id="displayName"
-                        value={profileData.displayName}
-                        onChange={(e) => handleInputChange("displayName", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={profileData.email}
-                        disabled={true}
-                        className="bg-gray-50"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input
-                        id="phone"
-                        value={profileData.phone}
-                        onChange={(e) => handleInputChange("phone", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="Enter your phone number"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={profileData.location}
-                        onChange={(e) => handleInputChange("location", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="City, Country"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                      <Input
-                        id="dateOfBirth"
-                        type="date"
-                        value={profileData.dateOfBirth}
-                        onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
-                        disabled={!isEditing}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="website">Website</Label>
-                      <Input
-                        id="website"
-                        value={profileData.website}
-                        onChange={(e) => handleInputChange("website", e.target.value)}
-                        disabled={!isEditing}
-                        placeholder="https://yourwebsite.com"
-                      />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Draft Personal Statement</p>
+                      <p className="text-xs text-gray-500">Due in 2 weeks</p>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <textarea
-                      id="bio"
-                      value={profileData.bio}
-                      onChange={(e) => handleInputChange("bio", e.target.value)}
-                      disabled={!isEditing}
-                      placeholder="Tell us about yourself..."
-                      className="w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Security Tab */}
-            <TabsContent value="security">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Security Settings</CardTitle>
-                  <CardDescription>
-                    Manage your account security and authentication methods
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Shield className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="font-medium">Two-Factor Authentication</h4>
-                        <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      {settings.twoFactorAuth ? "Disable" : "Enable"}
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Mail className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="font-medium">Change Password</h4>
-                        <p className="text-sm text-gray-600">Update your account password</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Change
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Download className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="font-medium">Download Data</h4>
-                        <p className="text-sm text-gray-600">Download a copy of your account data</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Download
-                    </Button>
-                  </div>
-
-                  <Separator />
-
-                  <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
-                    <div className="flex items-center space-x-3">
-                      <Trash2 className="h-5 w-5 text-red-600" />
-                      <div>
-                        <h4 className="font-medium text-red-900">Delete Account</h4>
-                        <p className="text-sm text-red-700">Permanently delete your account and all data</p>
-                      </div>
-                    </div>
-                    <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>
-                      Delete
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Notifications Tab */}
-            <TabsContent value="notifications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notification Preferences</CardTitle>
-                  <CardDescription>
-                    Choose how you want to be notified about account activity
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Bell className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="font-medium">Email Notifications</h4>
-                          <p className="text-sm text-gray-600">Receive notifications via email</p>
-                        </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.emailNotifications}
-                        onChange={(e) => handleSettingChange("emailNotifications", e.target.checked)}
-                        className="h-4 w-4 text-blue-600 rounded"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Phone className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="font-medium">SMS Notifications</h4>
-                          <p className="text-sm text-gray-600">Receive notifications via text message</p>
-                        </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.smsNotifications}
-                        onChange={(e) => handleSettingChange("smsNotifications", e.target.checked)}
-                        className="h-4 w-4 text-blue-600 rounded"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Mail className="h-5 w-5 text-blue-600" />
-                        <div>
-                          <h4 className="font-medium">Marketing Emails</h4>
-                          <p className="text-sm text-gray-600">Receive promotional emails and updates</p>
-                        </div>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={settings.marketingEmails}
-                        onChange={(e) => handleSettingChange("marketingEmails", e.target.checked)}
-                        className="h-4 w-4 text-blue-600 rounded"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Billing Tab */}
-            <TabsContent value="billing">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Billing & Subscription</CardTitle>
-                  <CardDescription>
-                    Manage your subscription and payment methods
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h4 className="font-medium">Current Plan</h4>
-                        <p className="text-sm text-gray-600">Free Plan</p>
-                      </div>
-                      <Badge variant="secondary">Active</Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      You're currently on the free plan. Upgrade to access premium features.
-                    </p>
-                    <Button className="w-full">
-                      Upgrade Plan
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <CreditCard className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="font-medium">Payment Methods</h4>
-                        <p className="text-sm text-gray-600">Manage your payment methods</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Manage
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Download className="h-5 w-5 text-blue-600" />
-                      <div>
-                        <h4 className="font-medium">Billing History</h4>
-                        <p className="text-sm text-gray-600">View and download invoices</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      View History
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          {/* Logout Button */}
-          <div className="mt-8 flex justify-center">
-            <Button variant="outline" onClick={handleLogout}>
-              Log Out
-            </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

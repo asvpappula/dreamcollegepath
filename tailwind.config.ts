@@ -19,10 +19,10 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'display': ['Times New Roman', 'serif'],
-				'body': ['Times New Roman', 'serif'],
-				'sans': ['Times New Roman', 'serif'],
-				'serif': ['Times New Roman', 'serif'],
+				'display': ['Roboto', 'sans-serif'],
+				'body': ['Roboto', 'sans-serif'],
+				'sans': ['Roboto', 'sans-serif'],
+				'serif': ['Roboto', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

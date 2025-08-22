@@ -66,9 +66,9 @@ const Contact = () => {
                         <div>
                           <h4 className="font-semibold text-lg mb-1">Address</h4>
                           <p className="text-muted-foreground">
-                            123 College Path Drive<br />
-                            Suite 200<br />
-                            San Francisco, CA 94105
+                            6200 Village Parkway<br />
+                            STE 200<br />
+                            Dublin, CA 94568
                           </p>
                         </div>
                       </div>
@@ -80,8 +80,8 @@ const Contact = () => {
                         <div>
                           <h4 className="font-semibold text-lg mb-1">Phone</h4>
                           <p className="text-muted-foreground">
-                            <a href="tel:+1-555-123-4567" className="hover:text-primary transition-colors">
-                              (555) 123-4567
+                            <a href="tel:+1-925-307-7711" className="hover:text-primary transition-colors">
+                              +1 925-307-7711
                             </a>
                           </p>
                         </div>
@@ -197,7 +197,12 @@ const Contact = () => {
               Don't wait to begin your college preparation. Contact us today to schedule a free consultation and discover how we can help you achieve your academic goals.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="hero" size="lg" className="px-8 py-4 text-lg">
+              <Button 
+                variant="hero" 
+                size="lg" 
+                className="px-8 py-4 text-lg"
+                onClick={() => window.open('https://calendly.com/dreamcollegepath/30min?month=2025-08', '_blank')}
+              >
                 Schedule Consultation
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
@@ -214,4 +219,4 @@ const Contact = () => {
   );
 };
 
-export default Contact; 
+export default Contact;

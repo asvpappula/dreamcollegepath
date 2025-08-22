@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, Trash2, CheckCircle, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Document {
   id: string;
@@ -14,10 +15,50 @@ interface Document {
 }
 
 const Admin = () => {
+  const { currentUser, userData, loading } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check if user is authenticated and is an admin
+  const isAdminUser = currentUser && 
+    userData && 
+    userData.role === 'admin' && 
+    currentUser.email?.toLowerCase().endsWith('@dreamcollegepath.com');
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <main className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Show error if user is not an admin
+  if (!isAdminUser) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <main className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+              <AlertCircle className="mx-auto h-12 w-12 text-red-600 mb-4" />
+              <h2 className="text-xl font-semibold text-red-800 mb-2">Access Denied</h2>
+              <p className="text-red-600">Admin access requires a @dreamcollegepath.com account.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();

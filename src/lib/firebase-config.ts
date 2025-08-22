@@ -11,6 +11,21 @@ import {
   onAuthStateChanged,
   User
 } from 'firebase/auth';
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  serverTimestamp,
+  Timestamp
+} from 'firebase/firestore';
+import { 
+  getStorage, 
+  ref, 
+  uploadBytes, 
+  getDownloadURL 
+} from 'firebase/storage';
 
 // Environment validation
 const requiredEnvVars = {
@@ -87,11 +102,16 @@ const firebaseConfig = {
 // Initialize Firebase only if all required vars are present
 let app: any = null;
 let auth: any = null;
+let db: any = null;
+let storage: any = null;
 
 try {
   if (missingVars.length === 0) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+    console.log('Firebase initialized successfully');
   } else {
     console.warn('Firebase not initialized due to missing environment variables');
   }
@@ -108,12 +128,125 @@ if (auth) {
   });
 }
 
+// User data interface
+export interface UserData {
+  uid: string;
+  name: string;
+  email: string;
+  photoURL?: string;
+  role: 'admin' | 'student';
+  firstName?: string;
+  lastName?: string;
+  preferredName?: string;
+  phone?: string;
+  school?: string;
+  gradYear?: number;
+  interests?: string[];
+  goals?: string;
+  isAdmin?: boolean;
+  createdAt: Timestamp;
+  lastLoginAt: Timestamp;
+}
+
+// Helper function to determine user role based on email
+const getUserRole = (email: string): 'admin' | 'student' => {
+  return email.toLowerCase().endsWith('@dreamcollegepath.com') ? 'admin' : 'student';
+};
+
+// Firestore user operations
+export const createOrUpdateUser = async (user: User): Promise<UserData> => {
+  if (!db) {
+    throw new Error('Firestore not properly configured');
+  }
+  
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+  const userRole = getUserRole(user.email || '');
+  
+  const userData: Partial<UserData> = {
+    uid: user.uid,
+    name: user.displayName || '',
+    email: user.email || '',
+    photoURL: user.photoURL || '',
+    role: userRole,
+    isAdmin: userRole === 'admin',
+    lastLoginAt: serverTimestamp() as Timestamp
+  };
+  
+  if (userSnap.exists()) {
+    // Update existing user with role assignment
+    await updateDoc(userRef, userData);
+    return { ...userSnap.data(), ...userData } as UserData;
+  } else {
+    // Create new user with role assignment
+    const newUserData: UserData = {
+      ...userData,
+      firstName: user.displayName?.split(' ')[0] || '',
+      lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+      preferredName: '',
+      phone: '',
+      school: '',
+      gradYear: new Date().getFullYear() + 4,
+      interests: [],
+      goals: '',
+      createdAt: serverTimestamp() as Timestamp
+    } as UserData;
+    
+    await setDoc(userRef, newUserData);
+    return newUserData;
+  }
+};
+
+export const getUserData = async (uid: string): Promise<UserData | null> => {
+  if (!db) {
+    throw new Error('Firestore not properly configured');
+  }
+  
+  const userRef = doc(db, 'users', uid);
+  const userSnap = await getDoc(userRef);
+  
+  if (userSnap.exists()) {
+    return userSnap.data() as UserData;
+  }
+  return null;
+};
+
+export const updateUserData = async (uid: string, data: Partial<UserData>): Promise<void> => {
+  if (!db) {
+    throw new Error('Firestore not properly configured');
+  }
+  
+  const userRef = doc(db, 'users', uid);
+  await updateDoc(userRef, data);
+};
+
+export const uploadAvatar = async (uid: string, file: File): Promise<string> => {
+  if (!storage) {
+    throw new Error('Firebase Storage not properly configured');
+  }
+  
+  const avatarRef = ref(storage, `avatars/${uid}.jpg`);
+  await uploadBytes(avatarRef, file);
+  const downloadURL = await getDownloadURL(avatarRef);
+  
+  // Update user's photoURL in Firestore
+  await updateUserData(uid, { photoURL: downloadURL });
+  
+  return downloadURL;
+};
+
 // Auth functions with error handling
-export const signInWithGoogle = () => {
+export const signInWithGoogle = async () => {
   if (!auth || !googleProvider) {
     throw new Error('Firebase not properly configured');
   }
-  return signInWithPopup(auth, googleProvider);
+  
+  const result = await signInWithPopup(auth, googleProvider);
+  
+  // Create or update user in Firestore
+  await createOrUpdateUser(result.user);
+  
+  return result;
 };
 
 export const signInWithEmail = (email: string, password: string) => {
@@ -159,5 +292,5 @@ export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, callback);
 };
 
-export { auth };
+export { auth, db, storage };
 export default app;

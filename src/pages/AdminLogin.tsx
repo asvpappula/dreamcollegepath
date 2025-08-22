@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Eye, EyeOff, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import { signInWithEmail, signInWithGoogle } from "@/lib/firebase";
-import { authApi } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 import Navigation from "@/components/Navigation";
 
 const AdminLogin = () => {
@@ -17,7 +17,22 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const { currentUser, userData, loading } = useAuth();
   const navigate = useNavigate();
+
+  // Helper function to check if email is admin domain
+  const isAdminEmail = (email: string): boolean => {
+    return email.toLowerCase().endsWith('@dreamcollegepath.com');
+  };
+
+  // Redirect if already authenticated as admin
+  useEffect(() => {
+    if (!loading && currentUser && userData) {
+      if (userData.role === 'admin' && isAdminEmail(currentUser.email || '')) {
+        navigate('/admin');
+      }
+    }
+  }, [currentUser, userData, loading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,19 +40,17 @@ const AdminLogin = () => {
     setError("");
     setSuccess("");
 
+    // Check domain before attempting sign-in
+    if (!isAdminEmail(email)) {
+      setError("Admin access requires a @dreamcollegepath.com account.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Sign in with Firebase
       await signInWithEmail(email, password);
       
-      // Verify admin status with backend
-      const response = await authApi.me();
-      
-      if (response.user?.role !== 'admin') {
-        setError("Access denied. Admin privileges required.");
-        setIsLoading(false);
-        return;
-      }
-
       setSuccess("Login successful! Redirecting to admin panel...");
       setTimeout(() => {
         navigate('/admin');
@@ -66,13 +79,11 @@ const AdminLogin = () => {
     setSuccess("");
 
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
       
-      // Verify admin status with backend
-      const response = await authApi.me();
-      
-      if (response.user?.role !== 'admin') {
-        setError("Access denied. Admin privileges required.");
+      // Check if the signed-in email is from admin domain
+      if (result?.user?.email && !isAdminEmail(result.user.email)) {
+        setError("Admin access requires a @dreamcollegepath.com account.");
         setIsLoading(false);
         return;
       }
@@ -83,7 +94,11 @@ const AdminLogin = () => {
       }, 1500);
     } catch (error: any) {
       console.error('Google admin login error:', error);
-      setError("Google sign-in failed. Please try again.");
+      if (error.message?.includes('popup-closed-by-user')) {
+        setError("Sign-in was cancelled.");
+      } else {
+        setError("Google sign-in failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

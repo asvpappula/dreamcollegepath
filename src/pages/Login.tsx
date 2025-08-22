@@ -8,8 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
-import { signInWithGoogle, signInWithEmail, signUpWithEmail, verifyEmail, auth } from "@/lib/firebase";
-import { authApi } from "@/lib/api";
+import { signInWithGoogle, signInWithEmail, signUpWithEmail, verifyEmail, auth, createOrUpdateUser } from "@/lib/firebase";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 
@@ -96,15 +95,8 @@ const Login = () => {
     setSuccess("");
     try {
       const result = await signInWithGoogle();
-      const user = result.user;
-      const idToken = await user.getIdToken();
-      const upsertRes = await authApi.upsert(idToken);
-      if (upsertRes.ok) {
-        setSuccess("Successfully signed in with Google!");
-        setTimeout(() => navigate("/profile"), 600);
-      } else {
-        throw new Error("Upsert failed");
-      }
+      setSuccess("Successfully signed in with Google!");
+      setTimeout(() => navigate("/profile"), 600);
     } catch (err) {
       console.error(err);
       setError("Failed to sign in with Google. Please try again.");
@@ -135,14 +127,9 @@ const Login = () => {
     
     try {
       const cred = await signInWithEmail(signInForm.email, signInForm.password);
-      const idToken = await cred.user.getIdToken();
-      const upsertRes = await authApi.upsert(idToken);
-      if (upsertRes.ok) {
-        setSuccess("Successfully signed in!");
-        setTimeout(() => navigate("/profile"), 600);
-      } else {
-        throw new Error("Upsert failed");
-      }
+      await createOrUpdateUser(cred.user);
+      setSuccess("Successfully signed in!");
+      setTimeout(() => navigate("/profile"), 600);
     } catch (err) {
       console.error(err);
       setError("Invalid email or password. Please try again.");
@@ -180,14 +167,9 @@ const Login = () => {
       const cred = await signUpWithEmail(signUpForm.email, signUpForm.password);
       // Send verification email
       try { await verifyEmail(cred.user); } catch {}
-      const idToken = await cred.user.getIdToken();
-      const upsertRes = await authApi.upsert(idToken);
-      if (upsertRes.ok) {
-        setSuccess("Account created! Please verify your email. Redirecting...");
-        setTimeout(() => navigate("/welcome"), 800);
-      } else {
-        throw new Error("Upsert failed");
-      }
+      await createOrUpdateUser(cred.user);
+      setSuccess("Account created! Please verify your email. Redirecting...");
+      setTimeout(() => navigate("/profile"), 800);
     } catch (err) {
       console.error(err);
       setError("Failed to create account. Please try again.");

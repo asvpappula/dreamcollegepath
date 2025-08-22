@@ -85,7 +85,13 @@ const Subscription = () => {
                       ))}
                     </ul>
                     <div className="px-8 pb-8 flex justify-center">
-                      <Button variant="outline" className="w-full max-w-xs">Schedule Free Consultation</Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full max-w-xs"
+                        onClick={() => window.open('https://calendly.com/dreamcollegepath/30min?month=2025-08', '_blank')}
+                      >
+                        Schedule Free Consultation
+                      </Button>
                     </div>
                   </div>
                 ))}

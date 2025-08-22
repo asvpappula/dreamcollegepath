@@ -132,7 +132,11 @@ const ServicesSection = () => {
               Every student is unique. We offer flexible packages and à la carte services 
               tailored to your specific needs and timeline.
             </p>
-            <Button variant="cta" size="lg">
+            <Button 
+              variant="cta" 
+              size="lg"
+              onClick={() => window.open('https://calendly.com/dreamcollegepath/30min?month=2025-08', '_blank')}
+            >
               Schedule a Consultation
             </Button>
           </div>
